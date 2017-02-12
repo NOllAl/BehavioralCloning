@@ -23,11 +23,27 @@ The usage of these additional cameras will be explained below.
 
 The simulator was played so long until 40000 images have been collected.
 
+Special care has been given to teach the car how to recover from bad situation. For that purpose, the recording was stopped until the car was at the border of the street. Then the car was driven very slowly to recover from this situation. As an example, look at the image below:
+
+![](image_correction.png)
+
+
+
 # Preprocessing
 
 The data are preprocessed as follows. First of all, the images are cut down from 320 x 160 to 208 x 66 by first selecting
 only the most relevant parts in the y-direction: we take only the pixel from 32:135 to restrict to the *road*. 
 Then, in order to decrease the training time, we resize the image to 208 x 66. Furthermore, the resized images are then normalized so that the pixel values lie between -1 and 1.
+
+As an example, consider the following image:
+
+![Example from car](example_img.png).
+
+The cropped version looks as follows:
+
+![Cropped exampe](example_img_cropped.png)
+
+As humans we are still able to figure out how to drive. This shows that the relevant features are still present.
 
 This kind of preprocessing is used in both training and in running the simulator. The corresponding function can be found as `preproc_image` in the python file `preproc.py`. 
 
@@ -58,10 +74,22 @@ This generator works as follows: it shuffles the training data by only consideri
 reads either the left, center, or right image described above. If the left image is selected, the steering angle is shifted
 by +0.25. If the right image is selected, the steering angle is shifted by -0.25. Otherwise the steering angle is kept as is.
 
+Examples of left/right translated images can be seen here:
+
+![Cropped translated](example_image_cropped_translated.png)
+
+The steering angles are highly imbalanced:
+
+![](angle_distr.png)
+
+In order to rectify this, steering angles with absolute value less than 0.1 are selected only with a probability of 50%.
+
 As a next step, in order to artificially increase the size of the training set and in order to reduce overfitting, the image is translated by a random amount between -100 and 100 in the x-direction. Together with the shift, the steering angle is also shifted by an appropriate amount (namely the amount of shifting times the offset of 0.25). This kind of translation will also resulte in the car learning to correct the steering angle better.
 
 Next, with a probability of 0.5 the image is flipped along a vertical axis and the steering angle is multiplied by -1. 
 This is done in order to augment the training set and to reduce overfitting. Basically it increases the training set by a factor of 2.
+
+![Example flipped](example_flipped.png)
 
 The batch size of the generator is customizable (and set to 100 in training).
 
